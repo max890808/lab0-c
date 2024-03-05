@@ -285,7 +285,29 @@ void q_sort(struct list_head *head, bool descend)
 int q_ascend(struct list_head *head)
 {
     // https://leetcode.com/problems/remove-nodes-from-linked-list/
-    return 0;
+    // https://leetcode.com/problems/remove-nodes-from-linked-list/
+    if (!head || list_empty(head))
+        return 0;
+    element_t *tmp_element, *node_element;
+    struct list_head *node, *safe;
+    int i = 0;
+    list_for_each_safe (node, safe, head) {
+        struct list_head *tmp = head->next, *tmp_next = tmp;
+        for (; tmp != node; tmp = tmp_next) {
+            tmp_element = list_entry(tmp, element_t, list);
+            node_element = list_entry(node, element_t, list);
+            tmp_next = tmp->next;
+            if (strcmp(tmp_element->value, node_element->value) > 0) {
+                list_del(tmp);
+                q_release_element(tmp_element);
+            }
+        }
+    }
+    struct list_head *node1;
+    list_for_each (node1, head) {
+        i++;
+    }
+    return i;
 }
 
 /* Remove every node which has a node with a strictly greater value anywhere to
@@ -293,7 +315,28 @@ int q_ascend(struct list_head *head)
 int q_descend(struct list_head *head)
 {
     // https://leetcode.com/problems/remove-nodes-from-linked-list/
-    return 0;
+    if (!head || list_empty(head))
+        return 0;
+    element_t *tmp_element, *node_element;
+    struct list_head *node, *safe;
+    int i = 0;
+    list_for_each_safe (node, safe, head) {
+        struct list_head *tmp = head->next, *tmp_next = tmp;
+        for (; tmp != node; tmp = tmp_next) {
+            tmp_element = list_entry(tmp, element_t, list);
+            node_element = list_entry(node, element_t, list);
+            tmp_next = tmp->next;
+            if (strcmp(tmp_element->value, node_element->value) < 0) {
+                list_del(tmp);
+                q_release_element(tmp_element);
+            }
+        }
+    }
+    struct list_head *node1;
+    list_for_each (node1, head) {
+        i++;
+    }
+    return i;
 }
 
 /* Merge all the queues into one sorted queue, which is in ascending/descending
