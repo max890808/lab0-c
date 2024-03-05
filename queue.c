@@ -225,8 +225,60 @@ void q_reverseK(struct list_head *head, int k)
     }
 }
 
+void merge(struct list_head *left,
+           struct list_head *right,
+           struct list_head *head,
+           bool descend)
+{
+    struct list_head *ptr = head;
+    while (!list_empty(left) && !list_empty(right)) {
+        element_t *element_l = list_entry(left->next, element_t, list);
+        element_t *element_r = list_entry(right->next, element_t, list);
+
+        if (descend) {
+            if (strcmp(element_l->value, element_r->value) < 0) {
+                list_move(right->next, ptr);
+                ptr = ptr->next;
+            } else {
+                list_move(left->next, ptr);
+                ptr = ptr->next;
+            }
+        } else {
+            if (strcmp(element_l->value, element_r->value) < 0) {
+                list_move(left->next, ptr);
+                ptr = ptr->next;
+            } else {
+                list_move(right->next, ptr);
+                ptr = ptr->next;
+            }
+        }
+    }
+    struct list_head *tmp = list_empty(left) ? right : left;
+    list_splice_tail(tmp, ptr->next);
+}
+
 /* Sort elements of queue in ascending/descending order */
-void q_sort(struct list_head *head, bool descend) {}
+void q_sort(struct list_head *head, bool descend)
+{
+    if (!head || list_empty(head) || list_is_singular(head))
+        return;
+
+    struct list_head *slow = head->next, *fast = head->next->next;
+    while (fast != head && fast->next != head) {
+        slow = slow->next;
+        fast = fast->next->next;
+    }
+
+    LIST_HEAD(left);
+    LIST_HEAD(right);
+
+    list_cut_position(&left, head, slow);
+    list_splice_init(head, &right);
+
+    q_sort(&left, descend);
+    q_sort(&right, descend);
+    merge(&left, &right, head, descend);
+}
 
 /* Remove every node which has a node with a strictly less value anywhere to
  * the right side of it */
