@@ -42,6 +42,12 @@ OBJS := qtest.o report.o console.o harness.o queue.o \
         shannon_entropy.o \
         linenoise.o web.o
 
+ENABLE_LINUX_SORT ?= 0
+ifeq ($(ENABLE_LINUX_SORT), 1)
+	CFLAGS += -D FEATURE_LINUX_SORT=1
+	OBJS += list_sort.o
+endif
+
 deps := $(OBJS:%.o=.%.o.d)
 
 qtest: $(OBJS)
@@ -54,7 +60,7 @@ qtest: $(OBJS)
 	$(Q)$(CC) -o $@ $(CFLAGS) -c -MMD -MF .$@.d $<
 
 check: qtest
-	./$< -v 3 -f traces/trace-eg.cmd
+	./$< -v 3 -f traces/trace-time-measure.cmd
 
 test: qtest scripts/driver.py
 	scripts/driver.py -c
